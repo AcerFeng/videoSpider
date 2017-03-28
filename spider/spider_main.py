@@ -73,8 +73,7 @@ class Craw_url(Enum):
     AiQiYi_Series_SouthKorea_URL = 'http://list.iqiyi.com/www/2/17-------------11-1-1-iqiyi--.html'
     AiQiYi_Series_EuropeAndAmerica_URL = 'http://list.iqiyi.com/www/2/18-------------11-1-1-iqiyi--.html'
     # 爱奇艺 电影
-    # AiQiYi_Movie_All_URL = 'http://list.iqiyi.com/www/1/----------------iqiyi--.html'
-    AiQiYi_Movie_All_URL = 'http://list.iqiyi.com/www/1/-------------4-1-1-iqiyi--.html'
+    AiQiYi_Movie_All_URL = 'http://list.iqiyi.com/www/1/----------------iqiyi--.html'
     # AiQiYi_Movie_Cinemas_URL = 'http://v.qq.com/x/list/movie?year=2017&offset=0&subtype=100062'
     # AiQiYi_Movie_Local_URL = 'http://v.qq.com/x/list/movie?offset=0&year=2017&area=100024'
     # AiQiYi_Movie_HongKong_URL = 'http://v.qq.com/x/list/movie?area=100025&offset=0'
@@ -313,4 +312,4 @@ if __name__ == '__main__':
     # 爱奇艺
     # craw_aiqiyi_series(spider)
 
-    craw_aiqiyi_movie(spider)
+    # craw_aiqiyi_movie(spider)

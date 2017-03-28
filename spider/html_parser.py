@@ -50,6 +50,8 @@ class htmlParser(object):
             'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_info')
         update_statuss = soup.select(
             'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_pic > a > div > div > p > span')
+        scroes_parents = soup.select(
+            'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_info > div.mod-listTitle_left')
 
         descss = []
         for desc in descs:
@@ -58,13 +60,21 @@ class htmlParser(object):
             else:
                 descss.append('')
 
-        for image, name, desc, status, link in zip(images, names, descss, update_statuss, links):
+        scroes = []
+        for scroe in scroes_parents:
+            if scroe.find('span', class_='score') is not None:
+                scroes.append(''.join(scroe.find('span', class_='score').get_text().strip().split()))
+            else:
+                scroes.append('')
+
+        for image, name, desc, status, link, score in zip(images, names, descss, update_statuss, links, scroes):
             data = {
                 'name': name.get_text(),
                 'image': 'http:' + image.get('src'),
                 'desc': desc,
                 'update_num': ''.join(status.get_text().strip().split()),
                 'link': link.get('href'),
+                'score': score,
                 'platform': platform,
                 'video_category': video_category,
                 'series_region': kwargs.get('series_region') or '',
