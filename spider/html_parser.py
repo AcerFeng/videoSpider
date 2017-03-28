@@ -47,14 +47,22 @@ class htmlParser(object):
         names = soup.select(
             'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_info > div.mod-listTitle_left > p > a')
         descs = soup.select(
-            'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_info > div.role_info')
+            'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_info')
         update_statuss = soup.select(
             'body > div.page-list > div > div > div.wrapper-cols > div > ul > li > div.site-piclist_pic > a > div > div > p > span')
-        for image, name, desc, status, link in zip(images, names, descs, update_statuss, links):
+
+        descss = []
+        for desc in descs:
+            if desc.find('div', class_='role_info') is not None:
+                descss.append(' '.join(desc.find('div', class_='role_info').get_text().strip().split()))
+            else:
+                descss.append('')
+
+        for image, name, desc, status, link in zip(images, names, descss, update_statuss, links):
             data = {
                 'name': name.get_text(),
                 'image': 'http:' + image.get('src'),
-                'desc': ' '.join(desc.get_text().strip().split()),
+                'desc': desc,
                 'update_num': ''.join(status.get_text().strip().split()),
                 'link': link.get('href'),
                 'platform': platform,
@@ -93,6 +101,6 @@ aiqiyi
 body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(1) > div.site-piclist_pic > a
 body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(1) > div.site-piclist_pic > a > img
 body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(1) > div.site-piclist_info > div.mod-listTitle_left > p > a
-body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(1) > div.site-piclist_info > div.role_info
+body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(2) > div.site-piclist_info
 body > div.page-list > div > div > div.wrapper-cols > div > ul > li:nth-child(1) > div.site-piclist_pic > a > div > div > p > span
 """
