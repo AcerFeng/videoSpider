@@ -39,6 +39,7 @@ class Series_region(Enum):
 class Movie_region(Enum):
     All = '热播'
     Cinemas = '院线'
+    Chines = '华语'
     Local = '内地'
     HongKong = '港片'
     EuropeAndAmerica = '欧美'
@@ -74,10 +75,11 @@ class Craw_url(Enum):
     AiQiYi_Series_EuropeAndAmerica_URL = 'http://list.iqiyi.com/www/2/18-------------11-1-1-iqiyi--.html'
     # 爱奇艺 电影
     AiQiYi_Movie_All_URL = 'http://list.iqiyi.com/www/1/----------------iqiyi--.html'
-    # AiQiYi_Movie_Cinemas_URL = 'http://v.qq.com/x/list/movie?year=2017&offset=0&subtype=100062'
-    # AiQiYi_Movie_Local_URL = 'http://v.qq.com/x/list/movie?offset=0&year=2017&area=100024'
-    # AiQiYi_Movie_HongKong_URL = 'http://v.qq.com/x/list/movie?area=100025&offset=0'
-    # AiQiYi_Movie_EuropeAndAmerica_URL = 'http://v.qq.com/x/list/movie?offset=0&area=100029&subtype=100062'
+    AiQiYi_Movie_Cinemas_URL = 'http://list.iqiyi.com/www/1/------27815-----2017--11-1-1-iqiyi--.html'
+    AiQiYi_Movie_Chines_URL = 'http://list.iqiyi.com/www/1/1-----------2017--11-1-1-iqiyi--.html'
+    AiQiYi_Movie_EuropeAndAmerica_URL = 'http://list.iqiyi.com/www/1/2-------------11-1-1-iqiyi--.html'
+    # 爱奇艺 综艺
+    AiQiYi_Variety_All_URL = 'http://list.iqiyi.com/www/6/----------------iqiyi--.html'
 
 
 INTERVAL = 10
@@ -110,7 +112,7 @@ class SpiderMain(object):
         if requestModel.video_category is None:
             return
 
-        print('crawing:  %s:%s:%s' % (requestModel.source_url, requestModel.platform, requestModel.video_category))
+        print('crawing:  %s:%s:%s:%s:%s' % (requestModel.source_url, requestModel.platform, requestModel.video_category, requestModel.source_url, requestModel.source_url.value))
         # return
         html_cont = self.downloader.download(requestModel.source_url.value)
         if html_cont is None:
@@ -155,7 +157,7 @@ class SpiderMain(object):
                     print('not aiqiyi datas.')
                     return
                 print('craw success!')
-                # self.data_handler.save_data(crawed_datas)
+                self.data_handler.save_data(crawed_datas)
                 # self.outputer.collect_data(crawed_datas)
             except Exception:
                 print('craw aiqiyi video failed.')
@@ -276,30 +278,32 @@ def craw_aiqiyi_movie(spider):
                                  video_category=Video_category.Movie,
                                  movie_region= Movie_region.All)
     spider.start_craw(requestModel=requestModel1)
-    # time.sleep(INTERVAL)
-    # requestModel2 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Local_URL,
-    #                              platform=Platform.AiQiYi,
-    #                              video_category=Video_category.Movie,
-    #                              movie_region=Movie_region.Local)
-    # spider.start_craw(requestModel=requestModel2)
-    # time.sleep(INTERVAL)
-    # requestModel3 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Cinemas_URL,
-    #                              platform=Platform.AiQiYi,
-    #                              video_category=Video_category.Movie,
-    #                              movie_region=Movie_region.Cinemas)
-    # spider.start_craw(requestModel=requestModel3)
-    # time.sleep(INTERVAL)
-    # requestModel4 = RequestModel(source_url=Craw_url.AiQiYi_Movie_HongKong_URL,
-    #                              platform=Platform.AiQiYi,
-    #                              video_category=Video_category.Movie,
-    #                              movie_region=Movie_region.HongKong)
-    # spider.start_craw(requestModel=requestModel4)
-    # time.sleep(INTERVAL)
-    # requestModel5 = RequestModel(source_url=Craw_url.AiQiYi_Movie_EuropeAndAmerica_URL,
-    #                              platform=Platform.AiQiYi,
-    #                              video_category=Video_category.Movie,
-    #                              movie_region=Movie_region.EuropeAndAmerica)
-    # spider.start_craw(requestModel=requestModel5)
+    time.sleep(INTERVAL)
+    requestModel2 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Chines_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Movie,
+                                 movie_region=Movie_region.Chines)
+    spider.start_craw(requestModel=requestModel2)
+    time.sleep(INTERVAL)
+    requestModel3 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Cinemas_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Movie,
+                                 movie_region=Movie_region.Cinemas)
+    spider.start_craw(requestModel=requestModel3)
+    time.sleep(INTERVAL)
+    requestModel4 = RequestModel(source_url=Craw_url.AiQiYi_Movie_EuropeAndAmerica_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Movie,
+                                 movie_region=Movie_region.EuropeAndAmerica)
+    spider.start_craw(requestModel=requestModel4)
+
+# 抓取爱奇艺综艺
+def craw_aiqiyi_variety(spider):
+    requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Variety_All_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Variety,
+                                 movie_region= Variety_type.All)
+    spider.start_craw(requestModel=requestModel1)
 
 if __name__ == '__main__':
     spider = SpiderMain()
@@ -311,5 +315,7 @@ if __name__ == '__main__':
     # craw_tx_variety(spider)
     # 爱奇艺
     # craw_aiqiyi_series(spider)
-
+    # time.sleep(5)
     # craw_aiqiyi_movie(spider)
+    # time.sleep(5)
+    # craw_aiqiyi_variety(spider)
