@@ -66,8 +66,16 @@ class Craw_url(Enum):
     # 腾讯 综艺
     TX_Variety_All_URL = 'http://v.qq.com/x/list/variety?offset=0'
 
+    # 爱奇艺 电视剧
+    AiQiYi_Series_All_URL = 'http://list.iqiyi.com/www/2/----------------iqiyi--.html'
+    AiQiYi_Series_Local_URL = 'http://list.iqiyi.com/www/2/15-------------11-1-1-iqiyi--.html'
+    AiQiYi_Series_Net_URL = 'http://list.iqiyi.com/www/2/-11992------------11-1-1-iqiyi--.html'
+    AiQiYi_Series_SouthKorea_URL = 'http://list.iqiyi.com/www/2/17-------------11-1-1-iqiyi--.html'
+    AiQiYi_Series_EuropeAndAmerica_URL = 'http://list.iqiyi.com/www/2/18-------------11-1-1-iqiyi--.html'
 
-INTERVAL = 5
+
+
+INTERVAL = 10
 
 class SpiderMain(object):
     def __init__(self):
@@ -97,37 +105,57 @@ class SpiderMain(object):
         if requestModel.video_category is None:
             return
 
-        print('crawing:  %s:%s:%s' % (requestModel.source_url, requestModel.veriety_region, requestModel.video_category))
+        print('crawing:  %s:%s:%s' % (requestModel.source_url, requestModel.platform, requestModel.video_category))
         # return
+        html_cont = self.downloader.download(requestModel.source_url.value)
+        if html_cont is None:
+            print('download fail.')
+            return
+        print('download success.')
+
+        kw = {}
+        if requestModel.series_region is not None:
+            kw['series_region'] = requestModel.series_region.value
+        if requestModel.movie_region is not None:
+            kw['movie_region'] = requestModel.movie_region.value
+        if requestModel.veriety_region is not None:
+            kw['veriety_region'] = requestModel.veriety_region.value
+
         if requestModel.platform == Platform.TengXunVideo:
             try:
-                html_cont = self.downloader.download(requestModel.source_url.value)
-
-                kw = {}
-                if requestModel.series_region is not None:
-                    kw['series_region'] = requestModel.series_region.value
-                if requestModel.movie_region is not None:
-                    kw['movie_region'] = requestModel.movie_region.value
-                if requestModel.veriety_region is not None:
-                    kw['veriety_region'] = requestModel.veriety_region.value
-
                 crawed_datas = self.parser.parse_tx_video_data(requestModel.source_url, html_cont,
                                                                platform=requestModel.platform.value,
                                                                video_category=requestModel.video_category.value,
                                                                **kw
                                                                )
                 if crawed_datas is None or len(crawed_datas) == 0:
-                    print('not datas.')
+                    print('not tx datas.')
                     return
 
-                self.data_handler.save_data(crawed_datas)
-                self.outputer.collect_data(crawed_datas)
+                print('craw success!')
+                # self.data_handler.save_data(crawed_datas)
+                # self.outputer.collect_data(crawed_datas)
             except Exception:
                 print('craw tengxun video failed.')
                 raise Exception
 
         elif requestModel.platform == Platform.AiQiYi:
-            pass
+            try:
+                crawed_datas = self.parser.parse_aiqiyi_video_data(requestModel.source_url, html_cont,
+                                                               platform=requestModel.platform.value,
+                                                               video_category=requestModel.video_category.value,
+                                                               **kw
+                                                               )
+                if crawed_datas is None or len(crawed_datas) == 0:
+                    print('not aiqiyi datas.')
+                    return
+                print('craw success!')
+                self.data_handler.save_data(crawed_datas)
+                self.outputer.collect_data(crawed_datas)
+            except Exception:
+                print('craw aiqiyi video failed.')
+                raise Exception
+
         elif requestModel.platform == Platform.YouKuVido:
             pass
         else:
@@ -206,7 +234,35 @@ def craw_tx_variety(spider):
     spider.start_craw(requestModel=requestModel1)
 
 def craw_aiqiyi_series(spider):
-    pass
+    requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Series_All_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Series,
+                                 series_region=Series_region.All)
+    spider.start_craw(requestModel=requestModel1)
+    time.sleep(INTERVAL)
+    requestModel2 = RequestModel(source_url=Craw_url.AiQiYi_Series_Local_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Series,
+                                 series_region=Series_region.Local)
+    spider.start_craw(requestModel=requestModel2)
+    time.sleep(INTERVAL)
+    requestModel3 = RequestModel(source_url=Craw_url.AiQiYi_Series_Net_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Series,
+                                 series_region=Series_region.Net)
+    spider.start_craw(requestModel=requestModel3)
+    time.sleep(INTERVAL)
+    requestModel4 = RequestModel(source_url=Craw_url.AiQiYi_Series_SouthKorea_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Series,
+                                 series_region=Series_region.SouthKorea)
+    spider.start_craw(requestModel=requestModel4)
+    time.sleep(INTERVAL)
+    requestModel5 = RequestModel(source_url=Craw_url.AiQiYi_Series_EuropeAndAmerica_URL,
+                                 platform=Platform.AiQiYi,
+                                 video_category=Video_category.Series,
+                                 series_region=Series_region.EuropeAndAmerica)
+    spider.start_craw(requestModel=requestModel5)
 
 
 if __name__ == '__main__':
@@ -215,4 +271,6 @@ if __name__ == '__main__':
     # time.sleep(5)
     # craw_tx_movie(spider)
     # time.sleep(5)
-    craw_tx_variety(spider)
+    # craw_tx_variety(spider)
+
+    craw_aiqiyi_series(spider)
