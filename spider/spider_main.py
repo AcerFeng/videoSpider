@@ -302,7 +302,7 @@ def craw_aiqiyi_variety(spider):
     requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Variety_All_URL,
                                  platform=Platform.AiQiYi,
                                  video_category=Video_category.Variety,
-                                 movie_region= Variety_type.All)
+                                 veriety_region= Variety_type.All)
     spider.start_craw(requestModel=requestModel1)
 
 if __name__ == '__main__':
@@ -318,4 +318,4 @@ if __name__ == '__main__':
     # time.sleep(5)
     # craw_aiqiyi_movie(spider)
     # time.sleep(5)
-    # craw_aiqiyi_variety(spider)
+    craw_aiqiyi_variety(spider)
