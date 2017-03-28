@@ -18,7 +18,7 @@ class DataHandler(object):
                 return None
 
             new_video = Video(name=data.get('name'), image=data.get('image'), desc=data.get('desc'),
-                              play_num=data.get('play'), update_num=data.get('update_num'), link=data.get('link'),
+                              play_num=data.get('play_num'), update_num=data.get('update_num'), link=data.get('link'),
                               score=data.get('score'), video_category=data.get('video_category'), series_region=data.get('series_region'),
                               movie_region=data.get('movie_region'), veriety_region=data.get('veriety_region'), platform=data.get('platform'))
             try:
