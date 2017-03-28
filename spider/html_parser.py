@@ -84,6 +84,9 @@ class htmlParser(object):
             res_data.append(data)
         return res_data
 
+    def _get_youku_new_data(self, page_url, soup, platform, video_category, **kwargs):
+        return None
+
     def parse_tx_video_data(self, page_url, html_cont, platform, video_category, **kwargs):
         if page_url is None or html_cont is None or platform is None or video_category is None:
             return None
@@ -96,6 +99,14 @@ class htmlParser(object):
             return None
         soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
         new_data = self._get_aiqiyi_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
+                                         **kwargs)
+        return new_data
+
+    def parse_youku_video_data(self, page_url, html_cont, platform, video_category, **kwargs):
+        if page_url is None or html_cont is None or platform is None or video_category is None:
+            return None
+        soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
+        new_data = self._get_youku_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
                                          **kwargs)
         return new_data
 """
