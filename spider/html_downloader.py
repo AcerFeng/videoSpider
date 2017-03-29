@@ -9,8 +9,13 @@ class htmlDownloader(object):
                       'Accept-Language':'zh-CN,zh;q=0.8'}
         try:
             response = requests.get(url, headers=my_headers, timeout=10)
-        except requests.packages.urllib3.exceptions.ReadTimeoutError:
-            print('连接超时')
+        except requests.exceptions.ConnectionError as error:
+            print('连接失败')
+            print('error:%s' % error)
+            return None
+        except requests.packages.urllib3.exceptions.ReadTimeoutError as error:
+            print('urllib3读取超时')
+            print('error:%s' % error)
             return None
         except requests.exceptions.ReadTimeout:
             print('读取超时')

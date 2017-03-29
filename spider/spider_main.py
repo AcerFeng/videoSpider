@@ -96,7 +96,7 @@ class Craw_url(Enum):
     YouKu_Variety_All_URL = 'http://list.youku.com/category/show/c_85_s_1_d_1_r_2017.html?spm=a2h1n.8251845.filterPanel.5!4~1~3!2~A'
 
 
-INTERVAL = 10
+INTERVAL = 20
 
 class SpiderMain(object):
     def __init__(self):
@@ -154,7 +154,7 @@ class SpiderMain(object):
                     return
 
                 print('craw success!')
-                # self.data_handler.save_data(crawed_datas)
+                self.data_handler.save_data(crawed_datas)
                 # self.outputer.collect_data(crawed_datas)
             except Exception:
                 print('craw tengxun video failed.')
@@ -188,7 +188,7 @@ class SpiderMain(object):
                     print('not Youku datas.')
                     return
                 print('craw success!')
-                # self.data_handler.save_data(crawed_datas)
+                self.data_handler.save_data(crawed_datas)
                 # self.outputer.collect_data(crawed_datas)
             except Exception:
                 print('craw Youku video failed.')
@@ -403,21 +403,21 @@ def craw_youku_variety(spider):
 
 if __name__ == '__main__':
     spider = SpiderMain()
-    # 腾讯
-    # craw_tx_series(spider)
-    # time.sleep(5)
-    # craw_tx_movie(spider)
-    # time.sleep(5)
-    # craw_tx_variety(spider)
+    腾讯
+    craw_tx_series(spider)
+    time.sleep(5)
+    craw_tx_movie(spider)
+    time.sleep(5)
+    craw_tx_variety(spider)
 
-    # 爱奇艺
-    # craw_aiqiyi_series(spider)
-    # time.sleep(5)
-    # craw_aiqiyi_movie(spider)
-    # time.sleep(5)
-    # craw_aiqiyi_variety(spider)
+    爱奇艺
+    craw_aiqiyi_series(spider)
+    time.sleep(5)
+    craw_aiqiyi_movie(spider)
+    time.sleep(5)
+    craw_aiqiyi_variety(spider)
 
-    # 优酷
+    优酷
     craw_youku_series(spider)
     time.sleep(5)
     craw_youku_movie(spider)
