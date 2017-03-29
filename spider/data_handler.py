@@ -28,7 +28,7 @@ class DataHandler(object):
                 self.session.commit()
             except Exception:
                 self.session.rollback()
-                logging.ERROR('database save failed.')
+                logging.exception('database save failed.', Exception)
                 raise Exception
 
     def __exit__(self, exc_type, exc_val, exc_tb):

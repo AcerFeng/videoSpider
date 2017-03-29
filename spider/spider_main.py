@@ -9,17 +9,9 @@ import html_outputer
 import html_parser
 from models import RequestModel
 import time
-import logging
-from logging.handlers import RotatingFileHandler
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(filename)s - %(name)s[line:%(lineno)d] - %(levelname)s - %(message)s')
-
-rHandler = RotatingFileHandler('log.txt', maxBytes=1 * 1024 * 1024)
-rHandler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(filename)s - %(name)s[line:%(lineno)d] - %(levelname)s - %(message)s')
-rHandler.setFormatter(formatter)
-logging.getLogger('').addHandler(rHandler)
+import logging.config
+import os
+import yaml
 
 
 # 来源平台
@@ -68,7 +60,7 @@ class VarietyType(Enum):
 @unique
 class CrawURL(Enum):
     # 腾讯 电视剧 全部热播
-    TX_Series_All_URL = 'http://v.qq.com/x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1'
+    TX_Series_All_URL = 'http://www.google.com'
     TX_Series_Local_URL = 'http://v.qq.com/x/list/tv?iyear=2017&offset=0&iarea=814'
     TX_Series_Net_URL = 'http://v.qq.com/x/list/tv?offset=0&itype=844&iyear=2017'
     TX_Series_SouthKorea_URL = 'http://v.qq.com/x/list/tv?offset=0&iarea=818'
@@ -160,8 +152,8 @@ class SpiderMain(object):
                                                                )
             except Exception:
                 logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
-                                                         request_model.video_category.value,
-                                                         request_model.source_url.value))
+                                                            request_model.video_category.value,
+                                                            request_model.source_url.value))
                 raise Exception
 
         elif request_model.platform == Platform.AiQiYi:
@@ -173,8 +165,8 @@ class SpiderMain(object):
                                                                    **kw)
             except Exception:
                 logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
-                                                         request_model.video_category.value,
-                                                         request_model.source_url.value))
+                                                            request_model.video_category.value,
+                                                            request_model.source_url.value))
                 raise Exception
 
         elif request_model.platform == Platform.YouKuVido:
@@ -187,8 +179,8 @@ class SpiderMain(object):
 
             except Exception:
                 logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
-                                                         request_model.video_category.value,
-                                                         request_model.source_url.value))
+                                                            request_model.video_category.value,
+                                                            request_model.source_url.value))
                 raise Exception
         else:
             logging.info('not Found platform.')
@@ -411,7 +403,22 @@ def craw_youku_variety(spider):
                                   veriety_region=VarietyType.All)
     spider.start_craw(request_model=request_model1)
 
+
+def setup_logging(default_path="logging.yaml", default_level=logging.INFO, env_key="LOG_CFG"):
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = value
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            config = yaml.load(f)
+            logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+
 if __name__ == '__main__':
+    setup_logging(default_path="logging.yaml")
+
     spider = SpiderMain()
     # 腾讯
     craw_tx_series(spider)

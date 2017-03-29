@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import logging
 
 
 class HtmlParser(object):
@@ -127,23 +128,35 @@ class HtmlParser(object):
         if page_url is None or html_cont is None or platform is None or video_category is None:
             return None
         soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
-        new_data = self._get_tx_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category, **kwargs)
+        try:
+            new_data = self._get_tx_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category, **kwargs)
+        except Exception:
+            logging.exception('parser %s:%s:%s  failed.' % (platform, video_category, page_url), Exception)
+            raise Exception
         return new_data
 
     def parse_aiqiyi_video_data(self, page_url, html_cont, platform, video_category, **kwargs):
         if page_url is None or html_cont is None or platform is None or video_category is None:
             return None
         soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
-        new_data = self._get_aiqiyi_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
-                                         **kwargs)
+        try:
+            new_data = self._get_aiqiyi_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
+                                                 **kwargs)
+        except Exception:
+            logging.exception('parser %s:%s:%s  failed.' % (platform, video_category, page_url), Exception)
+            raise Exception
         return new_data
 
     def parse_youku_video_data(self, page_url, html_cont, platform, video_category, **kwargs):
         if page_url is None or html_cont is None or platform is None or video_category is None:
             return None
         soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
-        new_data = self._get_youku_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
-                                         **kwargs)
+        try:
+            new_data = self._get_youku_new_data(page_url=page_url, soup=soup, platform=platform, video_category=video_category,
+                                                **kwargs)
+        except Exception:
+            logging.exception('parser %s:%s:%s  failed.' % (platform, video_category, page_url), Exception)
+            raise Exception
         return new_data
 """
 tx
