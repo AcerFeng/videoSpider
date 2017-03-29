@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
-import re
 
-class htmlParser(object):
+
+class HtmlParser(object):
 
     def _get_tx_new_data(self, page_url, soup, platform, video_category, **kwargs):
         res_data = []

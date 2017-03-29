@@ -9,6 +9,17 @@ import html_outputer
 import html_parser
 from models import RequestModel
 import time
+import logging
+from logging.handlers import RotatingFileHandler
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(filename)s - %(name)s[line:%(lineno)d] - %(levelname)s - %(message)s')
+
+rHandler = RotatingFileHandler('log.txt', maxBytes=1 * 1024 * 1024)
+rHandler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(filename)s - %(name)s[line:%(lineno)d] - %(levelname)s - %(message)s')
+rHandler.setFormatter(formatter)
+logging.getLogger('').addHandler(rHandler)
 
 
 # 来源平台
@@ -18,25 +29,28 @@ class Platform(Enum):
     YouKuVido = '优酷视频'
     AiQiYi = '爱奇艺'
 
+
 # 视频分类
 @unique
-class Video_category(Enum):
+class VideoCategory(Enum):
     Series = '电视剧'
     Movie = '电影'
     Variety = '综艺'
 
+
 # 电视剧地区分类
 @unique
-class Series_region(Enum):
+class SeriesRegion(Enum):
     All = '热播'
     Local = '内地'
     Net = '网剧'
     SouthKorea = '韩剧'
     America = '美国'
 
+
 # 电影地区分类
 @unique
-class Movie_region(Enum):
+class MovieRegion(Enum):
     All = '热播'
     Cinemas = '院线'
     Chines = '华语'
@@ -44,14 +58,15 @@ class Movie_region(Enum):
     HongKong = '港片'
     America = '美国'
 
+
 # 综艺分类
 @unique
-class Variety_type(Enum):
+class VarietyType(Enum):
     All = '热播'
 
 
 @unique
-class Craw_url(Enum):
+class CrawURL(Enum):
     # 腾讯 电视剧 全部热播
     TX_Series_All_URL = 'http://v.qq.com/x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1'
     TX_Series_Local_URL = 'http://v.qq.com/x/list/tv?iyear=2017&offset=0&iarea=814'
@@ -98,316 +113,321 @@ class Craw_url(Enum):
 
 INTERVAL = 20
 
+
 class SpiderMain(object):
     def __init__(self):
-        self.downloader = html_downloader.htmlDownloader()
-        self.parser = html_parser.htmlParser()
-        self.outputer = html_outputer.htmlOutPuter()
+        self.downloader = html_downloader.HtmlDownloader()
+        self.parser = html_parser.HtmlParser()
+        self.outputer = html_outputer.HtmlOutPuter()
         self.data_handler = data_handler.DataHandler()
 
-    def craw_tx_tv(self, url):
-        print('crew tx tv...')
-        try:
-            html_cont = self.downloader.download(url)
-            tx_video_datas = self.parser.parser_tx_video(url,html_cont)
-            self.outputer.collect_data(tx_video_datas)
-        except Exception:
-            print('craw failed')
-            raise Exception
-        self.outputer.output_html()
-
-    def start_craw(self, requestModel):
-        if requestModel is None:
+    def start_craw(self, request_model):
+        if request_model is None:
             return
-        if requestModel.source_url is None:
+        if request_model.source_url is None:
             return
-        if requestModel.platform is None:
+        if request_model.platform is None:
             return
-        if requestModel.video_category is None:
+        if request_model.video_category is None:
             return
 
-        print('crawing:  %s:%s:%s:%s:%s' % (requestModel.source_url, requestModel.platform, requestModel.video_category, requestModel.source_url, requestModel.source_url.value))
-        # return
-        html_cont = self.downloader.download(requestModel.source_url.value)
+        logging.info('fetching:  %s:%s:%s:%s' % (request_model.platform.value,
+                                                 request_model.video_category.value,
+                                                 request_model.source_url,
+                                                 request_model.source_url.value))
+
+        html_cont = self.downloader.download(request_model.source_url.value)
         if html_cont is None:
-            print('download fail.')
+            logging.info('download fail.')
             return
-        print('download success.')
+        logging.info('download success.')
 
         kw = {}
-        if requestModel.series_region is not None:
-            kw['series_region'] = requestModel.series_region.value
-        if requestModel.movie_region is not None:
-            kw['movie_region'] = requestModel.movie_region.value
-        if requestModel.veriety_region is not None:
-            kw['veriety_region'] = requestModel.veriety_region.value
+        if request_model.series_region is not None:
+            kw['series_region'] = request_model.series_region.value
+        if request_model.movie_region is not None:
+            kw['movie_region'] = request_model.movie_region.value
+        if request_model.veriety_region is not None:
+            kw['veriety_region'] = request_model.veriety_region.value
 
         crawed_datas = []
-        if requestModel.platform == Platform.TengXunVideo:
+        if request_model.platform == Platform.TengXunVideo:
             try:
-                crawed_datas = self.parser.parse_tx_video_data(requestModel.source_url, html_cont,
-                                                               platform=requestModel.platform.value,
-                                                               video_category=requestModel.video_category.value,
+                crawed_datas = self.parser.parse_tx_video_data(request_model.source_url, html_cont,
+                                                               platform=request_model.platform.value,
+                                                               video_category=request_model.video_category.value,
                                                                **kw
                                                                )
             except Exception:
-                print('parse tengxun video failed.')
+                logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
+                                                         request_model.video_category.value,
+                                                         request_model.source_url.value))
                 raise Exception
 
-        elif requestModel.platform == Platform.AiQiYi:
+        elif request_model.platform == Platform.AiQiYi:
             try:
-                crawed_datas = self.parser.parse_aiqiyi_video_data(requestModel.source_url, html_cont,
-                                                               platform=requestModel.platform.value,
-                                                               video_category=requestModel.video_category.value,
-                                                               **kw
-                                                               )
+                crawed_datas = self.parser.parse_aiqiyi_video_data(request_model.source_url,
+                                                                   html_cont,
+                                                                   platform=request_model.platform.value,
+                                                                   video_category=request_model.video_category.value,
+                                                                   **kw)
             except Exception:
-                print('parse aiqiyi video failed.')
+                logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
+                                                         request_model.video_category.value,
+                                                         request_model.source_url.value))
                 raise Exception
 
-        elif requestModel.platform == Platform.YouKuVido:
+        elif request_model.platform == Platform.YouKuVido:
             try:
-                crawed_datas = self.parser.parse_youku_video_data(requestModel.source_url, html_cont,
-                                                               platform=requestModel.platform.value,
-                                                               video_category=requestModel.video_category.value,
-                                                               **kw
-                                                               )
+                crawed_datas = self.parser.parse_youku_video_data(request_model.source_url,
+                                                                  html_cont,
+                                                                  platform=request_model.platform.value,
+                                                                  video_category=request_model.video_category.value,
+                                                                  **kw)
 
             except Exception:
-                print('parse Youku video failed.')
+                logging.warning('parse %s:%s:%s failed.' % (request_model.platform.value,
+                                                         request_model.video_category.value,
+                                                         request_model.source_url.value))
                 raise Exception
         else:
-            print('not Found platform.')
+            logging.info('not Found platform.')
 
         if len(crawed_datas) == 0:
-            print('not found %s datas.' % requestModel.platform.value)
+            logging.info('not found %s datas.' % request_model.platform.value)
             return
-        print('craw success!')
+        logging.info('craw success!')
         # self.data_handler.save_data(crawed_datas)
         # self.outputer.collect_data(crawed_datas)
 
+
 # 抓取腾讯视频电视剧
 def craw_tx_series(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.TX_Series_All_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.TX_Series_All_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.TX_Series_Local_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Local)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.TX_Series_Local_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Local)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel3 = RequestModel(source_url=Craw_url.TX_Series_Net_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Net)
-    spider.start_craw(requestModel=requestModel3)
+    request_model3 = RequestModel(source_url=CrawURL.TX_Series_Net_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Net)
+    spider.start_craw(request_model=request_model3)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.TX_Series_SouthKorea_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.SouthKorea)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.TX_Series_SouthKorea_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.SouthKorea)
+    spider.start_craw(request_model=request_model4)
     time.sleep(INTERVAL)
-    requestModel5 = RequestModel(source_url=Craw_url.TX_Series_America_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.America)
-    spider.start_craw(requestModel=requestModel5)
+    request_model5 = RequestModel(source_url=CrawURL.TX_Series_America_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.America)
+    spider.start_craw(request_model=request_model5)
 
 # 抓取腾讯视频电影
 def craw_tx_movie(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.TX_Movie_All_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Movie,
-                                 movie_region= Movie_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.TX_Movie_All_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region= MovieRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.TX_Movie_Local_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.Local)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.TX_Movie_Local_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.Local)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel3 = RequestModel(source_url=Craw_url.TX_Movie_Cinemas_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.Cinemas)
-    spider.start_craw(requestModel=requestModel3)
+    request_model3 = RequestModel(source_url=CrawURL.TX_Movie_Cinemas_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.Cinemas)
+    spider.start_craw(request_model=request_model3)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.TX_Movie_HongKong_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.HongKong)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.TX_Movie_HongKong_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.HongKong)
+    spider.start_craw(request_model=request_model4)
     time.sleep(INTERVAL)
-    requestModel5 = RequestModel(source_url=Craw_url.TX_Movie_America_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.America)
-    spider.start_craw(requestModel=requestModel5)
+    request_model5 = RequestModel(source_url=CrawURL.TX_Movie_America_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.America)
+    spider.start_craw(request_model=request_model5)
+
 
 # 抓取腾讯综艺
 def craw_tx_variety(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.TX_Variety_All_URL,
-                                 platform=Platform.TengXunVideo,
-                                 video_category=Video_category.Variety,
-                                 veriety_region=Variety_type.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.TX_Variety_All_URL,
+                                  platform=Platform.TengXunVideo,
+                                  video_category=VideoCategory.Variety,
+                                  veriety_region=VarietyType.All)
+    spider.start_craw(request_model=request_model1)
+
 
 # 爱奇艺电视剧
 def craw_aiqiyi_series(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Series_All_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.AiQiYi_Series_All_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.AiQiYi_Series_Local_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Local)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.AiQiYi_Series_Local_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Local)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel3 = RequestModel(source_url=Craw_url.AiQiYi_Series_Net_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Net)
-    spider.start_craw(requestModel=requestModel3)
+    request_model3 = RequestModel(source_url=CrawURL.AiQiYi_Series_Net_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Net)
+    spider.start_craw(request_model=request_model3)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.AiQiYi_Series_SouthKorea_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.SouthKorea)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.AiQiYi_Series_SouthKorea_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.SouthKorea)
+    spider.start_craw(request_model=request_model4)
     time.sleep(INTERVAL)
-    requestModel5 = RequestModel(source_url=Craw_url.AiQiYi_Series_America_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.America)
-    spider.start_craw(requestModel=requestModel5)
+    request_model5 = RequestModel(source_url=CrawURL.AiQiYi_Series_America_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.America)
+    spider.start_craw(request_model=request_model5)
+
 
 # 抓取爱奇艺电影
 def craw_aiqiyi_movie(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Movie_All_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Movie,
-                                 movie_region= Movie_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.AiQiYi_Movie_All_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region= MovieRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Chines_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.Chines)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.AiQiYi_Movie_Chines_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.Chines)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel3 = RequestModel(source_url=Craw_url.AiQiYi_Movie_Cinemas_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.Cinemas)
-    spider.start_craw(requestModel=requestModel3)
+    request_model3 = RequestModel(source_url=CrawURL.AiQiYi_Movie_Cinemas_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.Cinemas)
+    spider.start_craw(request_model=request_model3)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.AiQiYi_Movie_America_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.America)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.AiQiYi_Movie_America_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.America)
+    spider.start_craw(request_model=request_model4)
+
 
 # 抓取爱奇艺综艺
 def craw_aiqiyi_variety(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.AiQiYi_Variety_All_URL,
-                                 platform=Platform.AiQiYi,
-                                 video_category=Video_category.Variety,
-                                 veriety_region= Variety_type.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.AiQiYi_Variety_All_URL,
+                                  platform=Platform.AiQiYi,
+                                  video_category=VideoCategory.Variety,
+                                  veriety_region= VarietyType.All)
+    spider.start_craw(request_model=request_model1)
 
 
 # 抓取优酷视频电视剧
 def craw_youku_series(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.YouKu_Series_All_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.YouKu_Series_All_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.YouKu_Series_Local_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Local)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.YouKu_Series_Local_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Local)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel3 = RequestModel(source_url=Craw_url.YouKu_Series_Net_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.Net)
-    spider.start_craw(requestModel=requestModel3)
+    request_model3 = RequestModel(source_url=CrawURL.YouKu_Series_Net_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.Net)
+    spider.start_craw(request_model=request_model3)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.YouKu_Series_SouthKorea_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.SouthKorea)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.YouKu_Series_SouthKorea_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.SouthKorea)
+    spider.start_craw(request_model=request_model4)
     time.sleep(INTERVAL)
-    requestModel5 = RequestModel(source_url=Craw_url.YouKu_Series_America_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Series,
-                                 series_region=Series_region.America)
-    spider.start_craw(requestModel=requestModel5)
+    request_model5 = RequestModel(source_url=CrawURL.YouKu_Series_America_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Series,
+                                  series_region=SeriesRegion.America)
+    spider.start_craw(request_model=request_model5)
+
 
 # 抓取优酷视频电影
 def craw_youku_movie(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.YouKu_Movie_All_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Movie,
-                                 movie_region= Movie_region.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.YouKu_Movie_All_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region= MovieRegion.All)
+    spider.start_craw(request_model=request_model1)
     time.sleep(INTERVAL)
-    requestModel2 = RequestModel(source_url=Craw_url.YouKu_Movie_Local_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.Local)
-    spider.start_craw(requestModel=requestModel2)
+    request_model2 = RequestModel(source_url=CrawURL.YouKu_Movie_Local_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.Local)
+    spider.start_craw(request_model=request_model2)
     time.sleep(INTERVAL)
-    requestModel4 = RequestModel(source_url=Craw_url.YouKu_Movie_HongKong_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.HongKong)
-    spider.start_craw(requestModel=requestModel4)
+    request_model4 = RequestModel(source_url=CrawURL.YouKu_Movie_HongKong_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.HongKong)
+    spider.start_craw(request_model=request_model4)
     time.sleep(INTERVAL)
-    requestModel5 = RequestModel(source_url=Craw_url.YouKu_Movie_America_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Movie,
-                                 movie_region=Movie_region.America)
-    spider.start_craw(requestModel=requestModel5)
+    request_model5 = RequestModel(source_url=CrawURL.YouKu_Movie_America_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Movie,
+                                  movie_region=MovieRegion.America)
+    spider.start_craw(request_model=request_model5)
 
 # 抓取优酷综艺
 def craw_youku_variety(spider):
-    requestModel1 = RequestModel(source_url=Craw_url.YouKu_Variety_All_URL,
-                                 platform=Platform.YouKuVido,
-                                 video_category=Video_category.Variety,
-                                 veriety_region=Variety_type.All)
-    spider.start_craw(requestModel=requestModel1)
+    request_model1 = RequestModel(source_url=CrawURL.YouKu_Variety_All_URL,
+                                  platform=Platform.YouKuVido,
+                                  video_category=VideoCategory.Variety,
+                                  veriety_region=VarietyType.All)
+    spider.start_craw(request_model=request_model1)
 
 if __name__ == '__main__':
     spider = SpiderMain()
-    #腾讯
+    # 腾讯
     craw_tx_series(spider)
     time.sleep(INTERVAL)
     craw_tx_movie(spider)
     time.sleep(INTERVAL)
     craw_tx_variety(spider)
 
-    #爱奇艺
+    # 爱奇艺
     craw_aiqiyi_series(spider)
     time.sleep(INTERVAL)
     craw_aiqiyi_movie(spider)
     time.sleep(INTERVAL)
     craw_aiqiyi_variety(spider)
 
-    #优酷
+    # 优酷
     craw_youku_series(spider)
     time.sleep(INTERVAL)
     craw_youku_movie(spider)

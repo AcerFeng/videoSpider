@@ -1,11 +1,10 @@
 from sqlalchemy import Column, String, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-
 import time
-import uuid
 
 BaseModel = declarative_base()
+
 
 class Video(BaseModel):
     __tablename__ = 'video'
@@ -25,8 +24,6 @@ class Video(BaseModel):
     series_region = Column(String(20))  # 电视剧地区分类：全部热播、内地、网剧、韩剧、美剧
     movie_region = Column(String(20))  # 电影地区分类：全部热播、院线、内地、香港、美国
     veriety_region = Column(String(20))  # 综艺分类：热门
-
-
 
     created_at = Column(BigInteger, default=time.time)
 

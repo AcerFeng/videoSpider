@@ -1,0 +1,189 @@
+2017-03-29 16:15:48,168 - spider_main.py - root[line:137] - INFO - fetching:  腾讯视频:电视剧:CrawURL.TX_Series_All_URL:http://v.qq.com/x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1
+2017-03-29 16:16:18,183 - html_downloader.py - root[line:15] - WARNING - 连接失败
+2017-03-29 16:16:18,184 - html_downloader.py - root[line:16] - ERROR - HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103d20ba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 141, in _new_conn
+    (self.host, self.port), self.timeout, **extra_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/socket.py", line 732, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 600, in urlopen
+    chunked=chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 356, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1106, in request
+    self._send_request(method, url, body, headers)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1151, in _send_request
+    self.endheaders(body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1102, in endheaders
+    self._send_output(message_body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 934, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 877, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 166, in connect
+    conn = self._new_conn()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 150, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+requests.packages.urllib3.exceptions.NewConnectionError: <requests.packages.urllib3.connection.HTTPConnection object at 0x103d20ba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 423, in send
+    timeout=timeout
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 649, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/retry.py", line 376, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+requests.packages.urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103d20ba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/lanfeng/Documents/github/videoSpider/spider/html_downloader.py", line 13, in download
+    response = requests.get(url, headers=my_headers, timeout=10)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 70, in get
+    return request('get', url, params=params, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 56, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 488, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 609, in send
+    r = adapter.send(request, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 487, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103d20ba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+2017-03-29 16:16:18,192 - spider_main.py - root[line:141] - INFO - download fail.
+2017-03-29 16:21:19,296 - spider_main.py - root[line:137] - INFO - fetching:  腾讯视频:电视剧:CrawURL.TX_Series_All_URL:http://v.qq.com/x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1
+2017-03-29 16:21:49,319 - html_downloader.py - root[line:15] - WARNING - 连接失败
+2017-03-29 16:21:49,320 - html_downloader.py - root[line:16] - ERROR - HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 141, in _new_conn
+    (self.host, self.port), self.timeout, **extra_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/socket.py", line 732, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 600, in urlopen
+    chunked=chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 356, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1106, in request
+    self._send_request(method, url, body, headers)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1151, in _send_request
+    self.endheaders(body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1102, in endheaders
+    self._send_output(message_body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 934, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 877, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 166, in connect
+    conn = self._new_conn()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 150, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+requests.packages.urllib3.exceptions.NewConnectionError: <requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 423, in send
+    timeout=timeout
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 649, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/retry.py", line 376, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+requests.packages.urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/lanfeng/Documents/github/videoSpider/spider/html_downloader.py", line 13, in download
+    response = requests.get(url, headers=my_headers, timeout=10)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 70, in get
+    return request('get', url, params=params, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 56, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 488, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 609, in send
+    r = adapter.send(request, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 487, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?offset=0&iyear=2017&sort=4&iarea=-1 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fba8>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+2017-03-29 16:21:49,331 - spider_main.py - root[line:141] - INFO - download fail.
+2017-03-29 16:22:09,336 - spider_main.py - root[line:137] - INFO - fetching:  腾讯视频:电视剧:CrawURL.TX_Series_Local_URL:http://v.qq.com/x/list/tv?iyear=2017&offset=0&iarea=814
+2017-03-29 16:22:39,415 - html_downloader.py - root[line:15] - WARNING - 连接失败
+2017-03-29 16:22:39,415 - html_downloader.py - root[line:16] - ERROR - HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?iyear=2017&offset=0&iarea=814 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fa58>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 141, in _new_conn
+    (self.host, self.port), self.timeout, **extra_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/socket.py", line 732, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 600, in urlopen
+    chunked=chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 356, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1106, in request
+    self._send_request(method, url, body, headers)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1151, in _send_request
+    self.endheaders(body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 1102, in endheaders
+    self._send_output(message_body)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 934, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/http/client.py", line 877, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 166, in connect
+    conn = self._new_conn()
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connection.py", line 150, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+requests.packages.urllib3.exceptions.NewConnectionError: <requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fa58>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 423, in send
+    timeout=timeout
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/connectionpool.py", line 649, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/packages/urllib3/util/retry.py", line 376, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+requests.packages.urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?iyear=2017&offset=0&iarea=814 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fa58>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/lanfeng/Documents/github/videoSpider/spider/html_downloader.py", line 13, in download
+    response = requests.get(url, headers=my_headers, timeout=10)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 70, in get
+    return request('get', url, params=params, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/api.py", line 56, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 488, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/sessions.py", line 609, in send
+    r = adapter.send(request, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests/adapters.py", line 487, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='v.qq.com', port=80): Max retries exceeded with url: /x/list/tv?iyear=2017&offset=0&iarea=814 (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection object at 0x103e1fa58>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known',))
+2017-03-29 16:22:39,416 - spider_main.py - root[line:141] - INFO - download fail.

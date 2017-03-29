@@ -1,12 +1,14 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from models import Video
+import logging
+
 
 class DataHandler(object):
     def __init__(self):
         engine = create_engine('mysql+pymysql://root:123456@localhost:3306/videoSpider?charset=utf8mb4')
-        DBSession = sessionmaker(bind=engine)
-        self.session = DBSession()
+        db_session = sessionmaker(bind=engine)
+        self.session = db_session()
 
     def save_data(self, datas):
         if datas is None:
@@ -26,9 +28,8 @@ class DataHandler(object):
                 self.session.commit()
             except Exception:
                 self.session.rollback()
-                print('database save failed.')
+                logging.ERROR('database save failed.')
                 raise Exception
-
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.session.close()

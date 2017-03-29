@@ -1,7 +1,5 @@
 
-
-
-class htmlOutPuter(object):
+class HtmlOutPuter(object):
     def __init__(self):
         self.datas = []
 
