@@ -142,6 +142,7 @@ class SpiderMain(object):
         if requestModel.veriety_region is not None:
             kw['veriety_region'] = requestModel.veriety_region.value
 
+        crawed_datas = []
         if requestModel.platform == Platform.TengXunVideo:
             try:
                 crawed_datas = self.parser.parse_tx_video_data(requestModel.source_url, html_cont,
@@ -149,15 +150,8 @@ class SpiderMain(object):
                                                                video_category=requestModel.video_category.value,
                                                                **kw
                                                                )
-                if crawed_datas is None or len(crawed_datas) == 0:
-                    print('not tx datas.')
-                    return
-
-                print('craw success!')
-                self.data_handler.save_data(crawed_datas)
-                # self.outputer.collect_data(crawed_datas)
             except Exception:
-                print('craw tengxun video failed.')
+                print('parse tengxun video failed.')
                 raise Exception
 
         elif requestModel.platform == Platform.AiQiYi:
@@ -167,14 +161,8 @@ class SpiderMain(object):
                                                                video_category=requestModel.video_category.value,
                                                                **kw
                                                                )
-                if crawed_datas is None or len(crawed_datas) == 0:
-                    print('not aiqiyi datas.')
-                    return
-                print('craw success!')
-                self.data_handler.save_data(crawed_datas)
-                # self.outputer.collect_data(crawed_datas)
             except Exception:
-                print('craw aiqiyi video failed.')
+                print('parse aiqiyi video failed.')
                 raise Exception
 
         elif requestModel.platform == Platform.YouKuVido:
@@ -184,17 +172,19 @@ class SpiderMain(object):
                                                                video_category=requestModel.video_category.value,
                                                                **kw
                                                                )
-                if crawed_datas is None or len(crawed_datas) == 0:
-                    print('not Youku datas.')
-                    return
-                print('craw success!')
-                self.data_handler.save_data(crawed_datas)
-                # self.outputer.collect_data(crawed_datas)
+
             except Exception:
-                print('craw Youku video failed.')
+                print('parse Youku video failed.')
                 raise Exception
         else:
             print('not Found platform.')
+
+        if len(crawed_datas) == 0:
+            print('not found %s datas.' % requestModel.platform.value)
+            return
+        print('craw success!')
+        # self.data_handler.save_data(crawed_datas)
+        # self.outputer.collect_data(crawed_datas)
 
 # 抓取腾讯视频电视剧
 def craw_tx_series(spider):
@@ -403,23 +393,23 @@ def craw_youku_variety(spider):
 
 if __name__ == '__main__':
     spider = SpiderMain()
-    腾讯
+    #腾讯
     craw_tx_series(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_tx_movie(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_tx_variety(spider)
 
-    爱奇艺
+    #爱奇艺
     craw_aiqiyi_series(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_aiqiyi_movie(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_aiqiyi_variety(spider)
 
-    优酷
+    #优酷
     craw_youku_series(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_youku_movie(spider)
-    time.sleep(5)
+    time.sleep(INTERVAL)
     craw_youku_variety(spider)
